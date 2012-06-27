@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>My Title</title>
+        <style type="text/css">
+			@font-face {font-family:'Calibri';src: url('/home/kabbeck/django/stundentool2/media/calibri.ttf');}		 
+            @page {
+                size: {{ pagesize }};
+					 margin-top: 1.7cm;
+                margin-left: 2.7cm;
+					 margin-right: 1cm;
+ margin-bottom: 2.5cm;
+
+
+						
+                @frame footer {
+                    -pdf-frame-content: footerContent;
+                    bottom: 0cm;
+                    margin-left: 9cm;
+                    margin-right: 9cm;
+                    height: 1cm;
+                }
+            }
+
+			* {
+				font-family:Calibri;
+			}
+
+			#invoice_info {
+				position:absolute;
+				display:inline;
+				top: 1.7cm;
+				right:1.2cm;
+				float:right;
+				width: 5cm;	
+				border:1px solid blue;
+			}
+
+			#invoice_content {
+				position:absolute;
+				top:-7cm;
+				left:2.7cm;
+bottom:2.5cm;
+				float:left;
+				width: 200px;
+height:auto;
+				border:1px solid green;
+			}
+
+			#invoice_info p {
+				font-size:11px;width: 5cm;
+				color:rgb(132,132,132);
+			}
+
+			#invoice_info h1 {
+				font-size:20px;
+				color:rgb(19,107,175);
+			}
+
+			#address,#address_sender,#address_recipient {
+				width: 5cm;
+			}
+
+			#thetab {
+				width:5cm;				margin-right:5cm;
+			}
+
+			#thetab tr {
+				width:5cm;
+			}
+			#thetab td {
+				width:2.5cm;
+			}
+			#origin {border:1px solid red;width:5cm;width:100px;}
+        </style>
+    </head>
+    <body>
+
+<div id="invoice_info">
+	<span id="origin">
+		medienmonster oHG
+		Büro für Netz & Grafik
+		Deichweg 20
+		Festung Friedrichsort
+		D - 24159 Kiel
+	</span>
+
+	<p>
+		fon: + 49 431 540 2889 10<br />
+		fax: + 49 431 540 2889 80<br />
+		info@medienmonster.com<br />
+		www.medienmonster.com<br />
+	</p>
+
+	<p>
+		Eingetragen im<br />
+		HRA 5273 KI<br />
+		St.-Nr.: 19/280/60108<br />
+		USt-ID: DE 250226717<br />
+	</p>
+
+	<p>
+		Wüstenrot Bank AG<br />
+		Kto.-Nr.: 96 03 49 90 07<br />
+		BLZ.: 604 200 00
+	</p>
+
+	<p>
+		IBAN:<br />
+		DE43604200009603499007<br />
+		BIC:<br />
+		WBAGDE61
+	</p>
+
+	<h1>Rechnung</h1>
+
+	<p>
+		Nr.: R011060<br />
+		ZZ: 10 Werktage
+	</p>
+
+</div>
+
+<div id="invoice_content">
+
+
+		<p id="adress_sender">medienmonster | Deichweg 20 | 24159 Kiel</p>
+		<p id="adress_recipient">
+			Herbert Ulonska<br />
+			Hell Stallion Stud GmbH<br />
+			Horster Landstrasse 42<br />
+			25365 Klein Offenseth
+		</p>
+
+
+
+		<table id="thetab">
+			{% for item in poslist %}
+				<tr>
+					<td>{{ item.name }}</td>
+					<td>{{ item.duration }}</td>
+				</tr>
+			{% endfor %}
+		</table>
+				
+        
+        {{ dura }}
+</div>
+			<div class="clear"></div>
+        <div id="footerContent">
+            {%block page_foot%}
+                Seite <pdf:pagenumber>
+            {%endblock%}
+        </div>
+
+    </body>
+</html>
+

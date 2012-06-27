@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+{% load i18n l10n %}
+
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+    <p>Bitte Rechnung wählen, zu der folgende Aktion hinzugef&uuml;gt werden sollen:</p>
+
+    <ul>{{ queryset|unordered_list }}</ul>
+
+    <div>
+    <select name="invoices" size="10" width="30">
+    {% for obj in invoices %}
+    <option value="{{ obj.pk|unlocalize }}">{{ obj.invoicenr }} {{ obj.name }}</option>
+    {% endfor %}
+    </select>
+    
+    {% for obj in queryset %}
+    <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
+    {% endfor %}
+    <input type="hidden" name="action" value="add_actions_to_invoice" />
+    <input type="hidden" name="post" value="yes" /><br />
+    <input type="submit" value="Positionen hinzufügen" />
+    </div>
+</form>
+{% endblock %}

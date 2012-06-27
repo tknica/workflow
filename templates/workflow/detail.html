@@ -1,0 +1,12 @@
+<h1>{{ customer.name }}</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="/customers/{{ customer.id }}/vote/" method="post">
+{% csrf_token %}
+{%%}
+<ul>
+	{% for project in customer.project_set.all %}
+		<li>{{ project.name}}</li>
+	{% endfor %}
+</ul>

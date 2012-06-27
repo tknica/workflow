@@ -1,0 +1,9 @@
+{% if customers_list %}
+    <ul>
+    {% for name in customers_list %}
+        {{name}}
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No customers are available.</p>
+{% endif %}

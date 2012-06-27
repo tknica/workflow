@@ -1,0 +1,257 @@
+{% load workflowtags %}
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>My Title</title>
+        <style type="text/css">
+			@font-face {font-family:'Calibri';src: url('/home/medienmonster/stundentool/media/calibri.ttf');}
+			@font-face {font-family:'Calibri Bold';src: url('/home/medienmonster/stundentool/media/calibrib.ttf');}		 
+            @page {
+                size: {{ pagesize }};
+					 margin-top: 1.275cm;
+                margin-left: 2.7cm;
+					 margin-right: 0.2cm;
+					 margin-bottom: 2.5cm;
+			
+
+						@frame right {
+							-pdf-frame-content: right;
+							position:absolute;
+							top: 1.2cm;
+							right:0;
+							width: 4.5cm;
+						}
+	                
+						@frame footer {
+                  	-pdf-frame-content: footerContent;
+                  	bottom:0;
+                  	margin-left: 3.2cm;
+                  	height: 1cm;
+                	}					
+            }
+
+			* {
+				font-family:Calibri;
+			}
+
+	
+
+			#invoice_content {
+				-pdf-frame-content: left;
+				top: 7cm;
+				left: 2.4cm;
+				bottom: 2.5cm;
+				float:left;
+				width:13cm;
+			}
+
+			#right p {
+				font-size:12px;
+				line-height:13px;
+				margin-bottom:0.4cm;
+				color:rgb(132,132,132);
+			}
+
+			#invoice_info h1 {
+				font-size:20px;
+				color:rgb(19,107,175);
+			}
+
+			#addresstab, #addresstab tr, #addresstab td {
+				width: 13cm;
+			}
+
+			#date, #date tr, #date td {
+				width: 12cm;
+			}			
+
+			#thanks, #thanks tr, #thanks td {
+				width: 13cm;
+			}	
+
+			#invoicepositions,#invoicepositions tr {
+				width:13cm;
+			}
+
+			#invoicepositions th, #invoicepositions td {
+				text-align:right;
+			}
+
+			#summary,#summary tr {
+				width:13cm;
+			}
+
+
+			#thetab tr,#thetab2 tr,#thetab3 tr,#thetab2 td,#thetab3 td {
+				
+			}
+			
+
+
+			#origin {border:1px solid red;width:5cm;width:100px;}
+
+			.amount,.tax,.price,.sum {
+					text-align:right;
+			}
+        </style>
+    </head>
+    <body>
+
+<div id="right">
+	<p>
+		medienmonster oHG<br />
+		B&uuml;ro f&uuml;r Netz &amp; Grafik<br />
+		Deichweg 20<br />
+		Festung Friedrichsort<br />
+		D - 24159 Kiel
+	</p>
+
+	<p>
+		fon: + 49 431 540 2889 10<br />
+		fax: + 49 431 540 2889 80<br />
+		info@medienmonster.com<br />
+		www.medienmonster.com<br />
+	</p>
+
+	<p>
+		Eingetragen im<br />
+		HRA 5273 KI<br />
+		St.-Nr.: 19/280/60108<br />
+		USt-ID: DE 250226717<br />
+	</p>
+
+	<p>
+		W&uuml;stenrot Bank AG<br />
+		Kto.-Nr.: 96 03 49 90 07<br />
+		BLZ.: 604 200 00
+	</p>
+
+	<p style="margin-bottom:0.8cm;">
+		IBAN:<br />
+		DE43604200009603499007<br />
+		BIC:<br />
+		WBAGDE61
+	</p>
+
+	<h1 style="font-size:21px;color:rgb(19,107,175);margin-bottom:0;">Rechnung</h1>
+
+	<p style="margin-top:0;">
+		Nr.: {{ invoicenr }}<br />
+		ZZ: 10 Werktage<br />
+		<br />
+		{{ today }}
+	</p>
+
+</div>
+
+<div id="invoice_content">
+
+	<table id="addresstab">
+		<tr><td>&nbsp;</td></tr>
+		<tr><td>&nbsp;</td></tr>
+		<tr><td>&nbsp;</td></tr>
+		<tr><td>&nbsp;</td></tr>
+		<tr><td>&nbsp;</td></tr>				
+		<tr><td>&nbsp;</td></tr>		
+		<tr><td style="line-height:8px;">&nbsp;</td></tr>
+		<tr><td>&nbsp;</td></tr>		
+		<tr><td>&nbsp;</td></tr>
+		<tr><td style="font-size:13px;color:rgb(132,132,132);">medienmonster | Deichweg 20 | 24159 Kiel</td></tr>
+		<tr><td>&nbsp;</td></tr>
+		<tr><td style="font-size:14px;line-height:14px;">{{ address_name }}</td></tr>
+		<tr><td style="font-size:14px;line-height:14px;">{{ address_street }}</td></tr>
+		<tr><td></td></tr>
+		<tr><td style="font-size:14px;line-height:14px;">{{ address_postal }} {{ address_city }}</td></tr>
+	</table>
+
+	<table id="thanks">
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+		<tr><td style="font-size:15px;">{{ invoicename }}</td></tr>
+		<tr><td></td></tr>
+		<tr><td style="font-size:14px;">Sehr geehrte Damen und Herren,</td></tr>	
+		<tr><td style="font-size:14px;">wir bedanken uns f&uuml;r Ihren Auftrag <b>und</b> erlauben uns <strong>Ihnen</strong> folgende</td></tr>	
+		<tr><td style="font-size:14px;">Position(en) in Rechnung zu stellen.</td></tr>
+		<tr><td></td></tr>
+		<tr><td></td></tr>
+	</table>
+
+			<table id="invoicepositions">				
+					<tr>
+						<th style="width:0.5cm;font-size:14px;color:rgb(132,132,132);font-weight:900;"><b>Pos</b></th>
+						<th style="width:1.3cm;font-size:14px;color:rgb(132,132,132);font-weight:900;"><b>Menge</b></th>
+						<th style="width:1.2cm;font-size:14px;color:rgb(132,132,132);font-weight:900;"><b>Datum</b></th>
+						<th style="width:0.5cm;font-size:14px;color:rgb(132,132,132);font-weight:bold;">&nbsp;</th>
+						<th  style="text-align:left;width:6.5cm;font-size:14px;color:rgb(132,132,132);font-weight:bold;">Beschreibung</th>
+						<th style="width:1cm;font-size:14px;color:rgb(132,132,132);font-weight:bold;">Steuer</th>
+						<th style="width:1.5cm;font-size:14px;color:rgb(132,132,132);font-weight:bold;">Preis</th>
+						<th style="width:1.5cm;font-size:14px;color:rgb(132,132,132);font-weight:bold;">Gesamt</th>
+					</tr>
+				{% for item in poslist %}
+					<tr>
+						<td style="width:0.5cm;font-size:12px;vertical-align:top;">{{ forloop.counter }}</td>
+						<td style="width:1.3cm;font-size:12px;vertical-align:top;">{{ item.duration|get_amount:item.duration_extern }}</td>
+						<td style="width:1.2cm;font-size:12px;vertical-align:top;">{{ item.date_finished|date:'d.m.'  }}</td>
+						<td style="width:0.5cm;font-size:12px;vertical-align:top;">&nbsp;</td>
+						<td style="text-align:left;width:5.5cm;font-size:12px;vertical-align:top;">{{ item.name }}</td>
+						<td style="width:1cm;font-size:12px;vertical-align:top;">{{ item.tax }} %</td>
+						<td style="width:1.5cm;font-size:12px;vertical-align:top;">{{ item.price }} &euro;</td>
+						<td style="width:1.5cm;font-size:12px;vertical-align:top;">{{ item.duration|get_amount:item.duration_extern|get_sum:item.price }}  &euro;</td>
+					</tr>
+				{% endfor %}
+			</table>
+				
+		  <table id="summary">
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td style="width:8.3cm;"></td>
+					<td style="width:3cm;font-size:14px;"> Nettobetrag</td>
+					<td style="width:1.7cm;text-align:right;font-size:14px;"> {{ net }} &euro;</td>
+				</tr>
+				<tr>
+					<td style="width:8.3cm;"></td>
+					<td style="width:3cm;font-size:14px;"> Umsatzsteuer</td>
+					<td style="width:1.7cm;text-align:right;font-size:14px;"> {{ tax }} &euro;</td>
+				</tr>
+				<tr>
+					<td style="width:8.3cm;"></td>
+					<td style="width:3cm;font-size:14px;font-family:'Calibri Bold';"> Gesamtbetrag</td>
+					<td style="width:1.7cm;text-align:right;font-size:14px;font-family:'Calibri Bold';"> {{ gross }} &euro;</td>
+				</tr>
+			</table>
+
+			<div id="footerContent">
+            <p style="font-size:13px;color:rgb(132,132,132);text-left:center;">Das Leistungsdatum entspricht dem Rechnungsdatum sofern nicht abweichend vermerkt.</p>
+			</div>
+			
+		</div>
+	</body>
+</html>
+
