@@ -262,9 +262,8 @@ class ByMonthFilter(SimpleListFilter):
 		if self.value() != None:
 			selected_month = self.value()
 			sel_date = datetime.strptime(selected_month,'%Y-%m-%d')
-			lastday = date(int(sel_date.strftime('%Y')),int(sel_date.strftime('%m')) + 1,1) - datetime.timedelta (days =1)
 			return queryset.filter(date_finished__gte=date(int(sel_date.strftime('%Y')),int(sel_date.strftime('%m')),1),
-							date_finished__lte=date(int(sel_date.strftime('%Y')),int(sel_date.strftime('%m')),lastday.day))
+							date_finished__lte=date(int(sel_date.strftime('%Y')),int(sel_date.strftime('%m')) +1,1))
  
 
 #####################################
