@@ -585,7 +585,7 @@ class InvoiceAdmin(admin.ModelAdmin):
 	inlines = [
         ActionInline,
     ]
-
+	list_filter = ('invoicestatus','customer')
 	actions = ['delete_model']
     
 	def save_model(self, request, obj, form, change):	
