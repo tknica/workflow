@@ -581,7 +581,7 @@ class InvoiceAdmin(admin.ModelAdmin):
 				'fields': ('name','invoicenr','invoicedate','customer','project','invoicestatus','description')
 		}),
 	)
-	list_display = ('selflink','name','customer','project','get_printlink')
+	list_display = ('selflink','invoicestatus','name','customer','project','get_printlink')
 	inlines = [
         ActionInline,
     ]
