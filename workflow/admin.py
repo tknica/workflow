@@ -48,7 +48,7 @@ def make_new_invoice (project):
 		else:
 			newinvoice = Invoice(invoicenr=("E%03d%03d" % (int(year),1)),project=prj, customer=prj.customer,customeradd = "",name = prj.name)
 	except Exception:	
-		newinvoice = Invoice(invoicenr=("EX%03d%03d" % (int(year),1)),project=prj, customer=prj.customer,customeradd = "",name = prj.name)
+		newinvoice = Invoice(invoicenr=("EX%03d%03d" % (int(year),1)),project=prj, customer=prj.customer,custbin/mkzopeinstance --helpomeradd = "",name = prj.name)
 	newinvoice.save()
 	return newinvoice.id
 
