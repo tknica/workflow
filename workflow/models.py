@@ -132,6 +132,7 @@ class Invoice (models.Model):
 	name = models.CharField( max_length=200 )
 	project = models.ForeignKey( Project, verbose_name = 'Projekt' )
 	customer = models.ForeignKey( Customer, verbose_name = 'Kunde' )
+	customeradd = models.CharField( max_length=200, null=True, blank=True, verbose_name = 'Adresszusatz' )
 	invoicestatus = models.ForeignKey( InvoiceStatus, verbose_name = 'Rechnungszustand', default=get_invoice_status )	
 	description = models.TextField( null=True, blank=True, verbose_name = 'Notiz')
 	date_created = models.DateTimeField( auto_now_add = True, verbose_name = 'Erstellt am'  )

@@ -76,6 +76,7 @@ def print_invoice(request):
             {
                 'pagesize':'A4',
                 'address_name': cstm.name,
+                'address_add': inv.customeradd,
                 'address_street': cstm.street,
                 'address_postal': cstm.postal,
                 'address_city': cstm.city,

@@ -42,14 +42,13 @@ def make_new_invoice (project):
 		last_invoice = Invoice.objects.filter(invoicenr__contains='R0'+year).order_by('-invoicenr')[0]
 		currentyear = last_invoice.invoicenr[2:4]
 		if int(year) == int(currentyear): 
-			currentnr = last_invoice.invoicenr[5:7] 
+			currentnr = last_invoice.invoicenr[4:7] 
 			currentnr = int(currentnr) + 1						
-
-			newinvoice = Invoice(invoicenr=("R%03d%03d" % (int(year),int(currentnr))),project=prj, customer=prj.customer,name = prj.name)
+			newinvoice = Invoice(invoicenr=("R%03d%03d" % (int(year),int(currentnr))),project=prj, customer=prj.customer,customeradd = "",name = prj.name)
 		else:
-			newinvoice = Invoice(invoicenr=("R%03d%03d" % (int(year),1)),project=prj, customer=prj.customer,name = prj.name)
+			newinvoice = Invoice(invoicenr=("E%03d%03d" % (int(year),1)),project=prj, customer=prj.customer,customeradd = "",name = prj.name)
 	except Exception:	
-		newinvoice = Invoice(invoicenr=("R%03d%03d" % (int(year),1)),project=prj, customer=prj.customer,name = prj.name)
+		newinvoice = Invoice(invoicenr=("EX%03d%03d" % (int(year),1)),project=prj, customer=prj.customer,customeradd = "",name = prj.name)
 	newinvoice.save()
 	return newinvoice.id
 
@@ -578,10 +577,10 @@ class InvoiceStatusAdmin(admin.ModelAdmin):
 class InvoiceAdmin(admin.ModelAdmin):
 	fieldsets = (
 		('Rechnungssdaten',{
-				'fields': ('name','invoicenr','invoicedate','customer','project','invoicestatus','description')
+				'fields': ('name','invoicenr','invoicedate','customer','customeradd','project','invoicestatus','description')
 		}),
 	)
-	list_display = ('selflink','invoicestatus','name','customer','project','get_printlink')
+	list_display = ('selflink','invoicestatus','name','customer','customeradd','project','get_printlink')
 	inlines = [
         ActionInline,
     ]
@@ -603,7 +602,7 @@ class InvoiceAdmin(admin.ModelAdmin):
 				#if int(year) == int(currentyear): 
 					currentnr = last_invoices.invoicenr[5:7] 
 					currentnr = int(currentnr) + 1
-					instance.invoicenr = str(currentnr)
+					instance.invoicenr = "str(currentnr)"
 				else:
 					instance.invoicenr = "R%03d%03d" % (int(year),1)
 			except Exception:
