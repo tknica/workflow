@@ -82,7 +82,10 @@
 				width:13cm;
 			}
 
-
+			#description {
+				width:13cm;
+			}
+			
 			#thetab tr,#thetab2 tr,#thetab3 tr,#thetab2 td,#thetab3 td {
 				
 			}
@@ -246,7 +249,23 @@
 					<td style="width:1.7cm;text-align:right;font-size:14px;font-family:'Calibri Bold';"> {{ gross }} &euro;</td>
 				</tr>
 			</table>
-
+			
+			<table id="description">				
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td style="width:13cm;font-size:12px;text-align:left;">{{ description|linebreaksbr }}</td>
+				</tr>
+			</table>
+			
 			<div id="footerContent">
             <p style="font-size:13px;color:rgb(132,132,132);text-left:center;">Das Leistungsdatum entspricht dem Rechnungsdatum sofern nicht abweichend vermerkt.</p>
 			</div>

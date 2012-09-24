@@ -25,53 +25,56 @@ def render_to_pdf(template_src, context_dict,invnr):
     html  = template.render(context)
     result = StringIO.StringIO()
 
-    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
+    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("ISO-8859-1")), result)
     if not pdf.err:
-		response = HttpResponse(result.getvalue(), mimetype='application/pdf')
-		response['Content-Disposition'] = 'attachment; filename='+invnr+'.pdf'
-		return response
+        response = HttpResponse(result.getvalue(), mimetype='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename='+invnr+'.pdf'
+        return response
     return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))
 
 def print_invoice(request):
-	if request.GET.get('invoice'):
-		inv = Invoice.objects.get(id=request.GET.get('invoice'))
-		cstm = Customer.objects.get(id=inv.customer.pk)
+    if request.GET.get('invoice'):
+        inv = Invoice.objects.get(id=request.GET.get('invoice'))
+        cstm = Customer.objects.get(id=inv.customer.pk)
 
-	invpos =  Action.objects.filter(invoice=inv).order_by('date_finished')
+    invpos =  Action.objects.filter(invoice=inv).order_by('date_finished')
 
-	net = 0
-	tax = 0
-	gross = 0
+    net = 0
+    tax = 0
+    gross = 0
 
-	invnr = inv.invoicenr
+    invnr = inv.invoicenr
 
-	for ps in invpos:
+    for ps in invpos:
 		
-		dur = Decimal(ps.duration.seconds) / Decimal(3600)
-		durext = Decimal(ps.duration_extern.seconds) / Decimal(3600)
+        dur = Decimal(ps.duration.seconds) / Decimal(3600)
+        durext = Decimal(ps.duration_extern.seconds) / Decimal(3600)
 
-		if (dur != durext) and (durext > 0):
-			net += Decimal(durext) * Decimal(ps.price)
-			tax += (Decimal(durext) * Decimal(ps.price)* (Decimal(ps.tax) / Decimal(100)))
-			gross += (Decimal(durext) * Decimal(ps.price)* (Decimal(ps.tax) / Decimal(100) + Decimal(1)))
+        if (dur != durext) and (durext > 0):
+            net += Decimal(durext) * Decimal(ps.price)
+            tax += (Decimal(durext) * Decimal(ps.price)* (Decimal(ps.tax) / Decimal(100)))
+            gross += (Decimal(durext) * Decimal(ps.price)* (Decimal(ps.tax) / Decimal(100) + Decimal(1)))
 
 			
-		else:
-			net += Decimal(dur) * Decimal(ps.price)
-			tax += (Decimal(dur) * Decimal(ps.price)* (Decimal(ps.tax) / Decimal(100)))
-			gross += (Decimal(dur) * Decimal(ps.price)* (Decimal(ps.tax) / Decimal(100) + Decimal(1)))
+        else:
+            net += Decimal(dur) * Decimal(ps.price)
+            tax += (Decimal(dur) * Decimal(ps.price)* (Decimal(ps.tax) / Decimal(100)))
+            gross += (Decimal(dur) * Decimal(ps.price)* (Decimal(ps.tax) / Decimal(100) + Decimal(1)))
 
 
 	"""Format to two Pos after comma"""
 		
-	net = ('%.2f' % (Decimal(net))).replace('.', ',')
-	tax = ('%.2f' % (Decimal(tax))).replace('.', ',')
-	gross = ('%.2f' % (Decimal(gross))).replace('.', ',')
-
-	today = datetime.date.today()
-	today = today.strftime("%d.%m.%Y")
-
-	return render_to_pdf(
+    net = ('%.2f' % (Decimal(net))).replace('.', ',')
+    tax = ('%.2f' % (Decimal(tax))).replace('.', ',')
+    gross = ('%.2f' % (Decimal(gross))).replace('.', ',')
+    today = datetime.date.today()
+    today = today.strftime("%d.%m.%Y")
+    if inv.description:
+        escpdescr = inv.description
+        escpdescr.replace('\n', '<br />')
+    else:
+        escpdescr = ""
+    return render_to_pdf(
             'invoice.html',
             {
                 'pagesize':'A4',
@@ -86,7 +89,8 @@ def print_invoice(request):
                 'invoicenr': inv.invoicenr,
                 'net': net,
                 'tax':tax,
-                'gross' : gross
+                'gross' : gross,
+                'description': inv.description
                 
             },
             invnr
