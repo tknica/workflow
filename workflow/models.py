@@ -2,8 +2,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 from durationfield.db.models.fields.duration import DurationField
-import datetime
-# Customer
+from datetime import datetime
+
+
+# Customer model
 
 class Customer (models.Model):
 	name = models.CharField( max_length=200 )
@@ -30,8 +32,7 @@ class Customer (models.Model):
 		verbose_name_plural = "Kunden"		
 
 
-
-# Project
+# ProjectCategory model
 
 class ProjectCategory (models.Model):
 	name = models.CharField( max_length=200 )
@@ -44,6 +45,7 @@ class ProjectCategory (models.Model):
 		return self.name
 
 
+# Project model
 
 class Project (models.Model):
 	name = models.CharField( max_length=200 )
@@ -61,6 +63,9 @@ class Project (models.Model):
 	modified_by = models.ForeignKey( User, related_name = 'project_modified', null=True, blank=True, verbose_name = 'Geändert von' )
 
 	def get_employees(self):
+		"""
+		Returns the assigned employees to project list.
+		"""
 		return '%s' % (', '.join(a.username for a in self.employees.all()))
 	get_employees.short_description = 'Zugeordnete Mitarbeiter'
 
@@ -68,12 +73,10 @@ class Project (models.Model):
 		return self.name
 
 	def selflink(self):
-		
 		if self.id:
 			return "<a href='/workflow/project/%s' target='_blank'>%s</a>" % (str(self.id), str(self.name))
 		else:
 			return "Not present"
-	
 	selflink.allow_tags = True
 	selflink.short_description = 'Projekt'
 
@@ -82,8 +85,7 @@ class Project (models.Model):
 		verbose_name_plural = "Projekte"
 
 
-
-# Action
+# ActionStatus model
 
 class ActionStatus (models.Model):
 	name = models.CharField( max_length=200 )
@@ -96,11 +98,15 @@ class ActionStatus (models.Model):
 		return self.name
 
 
-
 def get_status():
+	"""
+	Returns ActionStatus obj with id=1 which is "Open/Offen". It is
+	used to set default in Action obj.
+	"""
 	return ActionStatus.objects.get(id=1)
 
 
+# ActionCategory model
 
 class ActionCategory (models.Model):
 	name = models.CharField( max_length=200 )
@@ -111,6 +117,9 @@ class ActionCategory (models.Model):
 
 	def __unicode__(self):
 		return self.name
+
+
+# InvoiceStatus model
 
 class InvoiceStatus (models.Model):
 	name = models.CharField( max_length=200 )
@@ -124,11 +133,26 @@ class InvoiceStatus (models.Model):
 
 
 def get_invoice_status():
+	"""
+	Returns InvoiceStatus obj with id=1 which is "Draft/Entwurf". It is
+	used to set default in Invoice obj.	
+	"""
 	return InvoiceStatus.objects.get(id=1)
+
+
+def now():
+	"""
+	Returns the current datetime which is used to set the default invoicedate for
+	the Invoice obj.
+	"""
+	return datetime.now()
+
+
+# Invoice model
 
 class Invoice (models.Model):
 	invoicenr = models.CharField( max_length=20,verbose_name = 'Rechnungsnummer' )
-	invoicedate = models.DateTimeField(verbose_name = 'Rechnungsdatum', default=datetime.date.today )
+	invoicedate = models.DateTimeField(verbose_name = 'Rechnungsdatum', default=now)
 	name = models.CharField( max_length=200 )
 	project = models.ForeignKey( Project, verbose_name = 'Projekt' )
 	customer = models.ForeignKey( Customer, verbose_name = 'Kunde' )
@@ -143,17 +167,16 @@ class Invoice (models.Model):
 	def __unicode__(self):
 		return "%s" % (self.invoicenr)
 
-	def selflink(self):
-		
+	def selflink(self):	
 		if self.id:		
-			today = datetime.date.today()
-			year = today.strftime("%y")
 			return "<a href='/workflow/invoice/%s' target='_self'>%s</a>" % (self.id,self.invoicenr)
 		else:
-			return "Not present"
-	
+			return "Not present"	
 	selflink.allow_tags = True
 	selflink.short_description = 'Rechnung'
+
+
+# Action model
 
 class Action (models.Model):
 	name = models.CharField( max_length=200 )
@@ -164,6 +187,7 @@ class Action (models.Model):
 	owner = models.ForeignKey( User, related_name = 'action_owner', null=True, blank=True, verbose_name = 'Bearbeitet von' )
 	done = models.BooleanField(verbose_name = 'Fertig')
 	billed = models.BooleanField(verbose_name = 'Abgerechnet')
+	active = models.BooleanField(verbose_name = 'Aktiv',default=True)
 	price = models.DecimalField(max_digits=12, decimal_places=2,verbose_name = 'Preis')
 	tax = models.IntegerField( max_length=5 ,verbose_name = 'Steuer')
 	duration = DurationField(default="0:00",verbose_name = 'Dauer')
@@ -178,8 +202,13 @@ class Action (models.Model):
 	modified_by = models.ForeignKey( User, related_name = 'action_modified', null=True, blank=True, verbose_name = 'Geändert von' )
 
 	def customer(self):
+		"""
+		Returns the "parent of parent" obj Customer.
+		It is used to display the customer in the actions list.
+		"""
 		return self.project.customer
 	customer.short_description = 'Customer'
+
 	
 	def index(self):
 		return "test"
@@ -190,7 +219,6 @@ class Action (models.Model):
 		
 		
 	def selflink(self):
-		
 		if self.id:
 			return u"<a href='/workflow/action/%s/?project=%s' target='_blank'>%s</a>" % (self.id, self.project.pk, self.name)
 		else:
@@ -199,36 +227,37 @@ class Action (models.Model):
 	selflink.allow_tags = True
 	selflink.short_description = 'Aktion'	
 
+
 	def edit(self):
-		
 		if self.id:
 			return "<a href='/workflow/action/%s' target='_blank'>%s</a>" % (str(self.id), "Bearbeiten")
 		else:
 			return "Nicht vorhanden"
-
 	edit.allow_tags = True
 	edit.short_description = 'Aktion'
 
-	def get_remove_invoice_pos_link(self):
-		return u"<a class='delete_pos_link' href='/remove_pos_from_invoice?inv=%s&pos=%s'>Position entfernen</a>" %  (self.invoice.pk,self.id)
 
+	def get_remove_invoice_pos_link(self):
+		"""
+		Returns a link to delete a action from invoice.
+		"""
+		return u"<a class='delete_pos_link' href='/remove_pos_from_invoice?inv=%s&pos=%s'>Position entfernen</a>" %  (self.invoice.pk,self.id)
 	get_remove_invoice_pos_link.allow_tags = True
 	get_remove_invoice_pos_link.short_description = 'Entfernen'
 
+
 	def non_editable_date_finished(self):
 		return u"%s" %  (self.date_finished)
-
 	non_editable_date_finished.short_description = 'Fertiggestellt'
+
 
 	def non_editable_duration(self):
 		return u"%s" %  (self.duration)
-
 	non_editable_duration.short_description = 'Dauer'
 
 
 
 	# Bearbeitungszustand auf Abgeschlossen ( pk = 2 ) setzen, wenn Feld Fertig gesetzt
-
 	def save(self, *args, **kwargs):
 		if self.done == True:
 			status = ActionStatus.objects.get(pk='2')
@@ -238,14 +267,9 @@ class Action (models.Model):
 		super(Action, self).save(*args, **kwargs)
 
 
-
 	class Meta:
 		verbose_name = 'Aktion'
 		verbose_name_plural = 'Aktionen'
 
 	def __unicode__(self):
 		return self.name
-
-
-		
-

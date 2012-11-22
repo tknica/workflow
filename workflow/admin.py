@@ -33,39 +33,25 @@ from django.contrib.admin import SimpleListFilter
 import time, locale
 locale.setlocale(locale.LC_ALL, '')
 
-def make_new_invoice (project):		
-	today = date.today()
-	year = today.strftime("%y")
-	prj = Project.objects.get( id = project )
-		
-	try:	
-		last_invoice = Invoice.objects.filter(invoicenr__contains='R0'+year).order_by('-invoicenr')[0]
-		currentyear = last_invoice.invoicenr[2:4]
-		if int(year) == int(currentyear): 
-			currentnr = last_invoice.invoicenr[4:7] 
-			currentnr = int(currentnr) + 1						
-			newinvoice = Invoice(invoicenr=("R%03d%03d" % (int(year),int(currentnr))),project=prj, customer=prj.customer,customeradd = "",name = prj.name)
-		else:
-			newinvoice = Invoice(invoicenr=("R%03d%03d" % (int(year),1)),project=prj, customer=prj.customer,customeradd = "",name = prj.name)
-	except Exception:	
-		newinvoice = Invoice(invoicenr=("R%03d%03d" % (int(year),1)),project=prj, customer=prj.customer,customeradd = "",name = prj.name)
-	newinvoice.save()
-	return newinvoice.id
 
-######################
-###### Customer ######
-###################### 
+# CustomerAdmin model
 
 class CustomerAdmin(admin.ModelAdmin):
 	readonly_fields = ['date_created','created_by','date_modified','modified_by']
 	ordering = ['name']
 	fieldsets = (
-		('Kundendaten',{
-				'fields': ( 'name', 'street', 'postal','city', 'telephone', 'telefax', 'email', 'contact','price','tax','description' )
-		}),	
-		('Info',{
-				'fields': ('date_created','created_by','date_modified','modified_by')
-		}),
+		('Kundendaten',
+			{
+				'fields': 
+					( 'name', 'street', 'postal','city', 'telephone', 'telefax', 'email', 'contact','price','tax','description' )
+			}
+		),	
+		('Info',
+			{
+				'fields': 
+					('date_created','created_by','date_modified','modified_by')
+			}
+		),
 	)
 
 	list_display = ('related_projects','get_changelink')
@@ -222,37 +208,37 @@ class ByMonthFilter(SimpleListFilter):
 
 	def lookups(self, request, model_admin):
 
-			first_act = Action.objects.filter(date_finished__gte=date(2010,1,1)).order_by('date_finished')[0]
-			last_act = Action.objects.filter(date_finished__gte=date(2010,1,1)).order_by('-date_finished')[0]
+		first_act = Action.objects.filter(date_finished__gte=date(2010,1,1)).order_by('date_finished')[0]
+		last_act = Action.objects.filter(date_finished__gte=date(2010,1,1)).order_by('-date_finished')[0]
 
-			current_year = first_act.date_finished.year
+		current_year = first_act.date_finished.year
 
-			#Get years
-			years_cnt = last_act.date_finished.year - first_act.date_finished.year
+		#Get years
+		years_cnt = last_act.date_finished.year - first_act.date_finished.year
 			
-			month_list = []
+		month_list = []
 			
-			for yr in range(0,(years_cnt+1)):
+		for yr in range(0,(years_cnt+1)):
 				
-				# set first month to january
-				start_month = 1
-				end_month = 13
+			# set first month to january
+			start_month = 1
+			end_month = 13
 				
-				if yr == 0:
-					# set first month to month of first action for first year
-					start_month = first_act.date_finished.month
+			if yr == 0:
+				# set first month to month of first action for first year
+				start_month = first_act.date_finished.month
 				
-				if yr == years_cnt:
-					# set end month to month of last action for the latest year
-					end_month = last_act.date_finished.month +1
+			if yr == years_cnt:
+				# set end month to month of last action for the latest year
+				end_month = last_act.date_finished.month +1
 
 				
-				for mth in range(start_month,end_month):
-					month_list.append((date(current_year,mth,1),_(date(current_year,mth,1).strftime('%B') + " " + str(current_year))))
-				current_year = current_year + 1
+			for mth in range(start_month,end_month):
+				month_list.append((date(current_year,mth,1),_(date(current_year,mth,1).strftime('%B') + " " + str(current_year))))
+			current_year = current_year + 1
 			
-				month_list.append(("notready",_("nicht fertig")))
-			return (month_list)
+			month_list.append(("notready",_("nicht fertig")))
+		return (month_list)
 
 		
 	def queryset(self, request, queryset):
@@ -301,21 +287,91 @@ class ActionAdmin(admin.ModelAdmin):
 	readonly_fields = ['date_created','created_by','date_modified','modified_by','billed','duration_extern']
 	fieldsets = (
 		('Aktionsdaten',{
-				'fields': ('name','project','actionstatus','actioncategory','owner','done','billed','duration','date_finished', 'deadline_extern', 'deadline_intern','description')
+				'fields': ('name','project','actionstatus','actioncategory','owner','done','billed','active','duration','date_finished', 'deadline_extern', 'deadline_intern','description')
 		}),
 		('Info',{
 				'fields': ('date_created','created_by','date_modified','modified_by')
 		}),
 	)
 
-	list_display = ('selflink','id','invoice','actionstatus','actioncategory','owner','done','billed','duration','date_finished', 'deadline_extern', 'deadline_intern','description','get_changelink')
-	list_filter = ('owner','billed',ByMonthFilter)
+	list_display = ('selflink','id','invoice','actionstatus','actioncategory','owner','done','billed','active','duration','date_finished', 'deadline_extern', 'deadline_intern','description','get_changelink')
+	list_filter = ('owner','billed','active',ByMonthFilter)
 
-	actions = ['bill_it','add_actions_to_invoice','mark_as_ready']
+	actions = ['bill_it','add_actions_to_invoice','mark_as_ready','deactivate_actions']
 
 	form = ActionAdminForm
-#	def get_changelist(self, request):
-#		return ActionChangeList
+	
+	change_list_template = 'admin/workflow/extras/custom_changelist.html'
+
+	def get_total(selfself,request):
+
+		#filtervalues = []
+		#if request.GET.has_key('project'):
+		#	filtervalues.append("project=%s" % request.GET.get('project'))
+			
+		#if request.GET.has_key('owner__id__exact'):
+		#	filtervalues.append("owner=%s" % request.GET.get('owner__id__exact'))
+	
+		#if request.GET.has_key('active__exact'):
+		#	filtervalues.append("active=%s" % request.GET.get('active__exact'))
+		
+		#if request.GET.has_key('month'):
+		#	filtervalues.append("active=%s" % request.GET.get('month'))
+				
+		#if request.GET.has_key('billed__exact'):
+		#	filtervalues.append("billed=%s" % request.GET.get('billed__exact'))
+
+		my_filter = {}
+		if request.GET.has_key('project'):
+			my_filter["project"] = request.GET.get('project')
+
+		if request.GET.has_key('owner__id__exact'):
+			my_filter["owner"] = request.GET.get('owner__id__exact')
+	
+		if request.GET.has_key('active__exact'):
+			my_filter["active"] = request.GET.get('active__exact')
+		
+		if request.GET.has_key('month'):
+			if request.GET.get('month') == "notready":
+				my_filter["date_finished"] = None
+			else:
+				if request.GET.get('month') != None :
+					sel_date = datetime.strptime(request.GET.get('month'),'%Y-%m-%d')
+					my_filter["date_finished__gte"] = date(int(sel_date.strftime('%Y')),int(sel_date.strftime('%m')),1)
+					my_filter["date_finished__lte"] = date(int(sel_date.strftime('%Y')),int(sel_date.strftime('%m')) +1,1)
+				
+		if request.GET.has_key('billed__exact'):
+			my_filter["billed"] = request.GET.get('billed__exact')		
+
+		
+		q = Action.objects.filter(**my_filter).aggregate(tot=Sum('duration'))
+		#q = Action.objects.all().aggregate(tot=Sum('duration'))
+		if q['tot'] != None:
+			total = timedelta(microseconds=q['tot'])
+			#hours, remainder = divmod(total, 3600)
+			#minutes, seconds = divmod(remainder, 60)
+			#duration_formatted = '%s:%s:%s' % (hours, minutes, seconds)
+			#scds = int(q / 1000000)
+			days = total.days * 24
+			hours =  int(time.strftime("%H",time.gmtime(total.seconds))) + days
+			minutes = time.strftime("%M",time.gmtime(total.seconds))
+			formated_duration = "%s:%s" % (hours,minutes)
+		else:
+			formated_duration = ""
+		return formated_duration
+
+	def changelist_view(self, request, extra_context=None):
+
+		my_context = {
+			'total': self.get_total(request),
+		}
+		
+		if not request.GET.has_key('active__exact'):
+			q = request.GET.copy()
+			q['active__exact'] = '1'
+			request.GET = q
+			request.META['QUERY_STRING'] = request.GET.urlencode()
+		return super(ActionAdmin,self).changelist_view(request, extra_context=my_context)
 
 	# get_form method is needed to override the form
 
@@ -458,6 +514,13 @@ class ActionAdmin(admin.ModelAdmin):
 	mark_as_ready.short_description = "Aktionen als fertig markieren"
 
 
+	def deactivate_actions (self, request, queryset):
+		for obj in queryset:
+			obj.active = False
+			obj.save()
+		message = "Gewählte Aktionen deaktiviert."
+		messages.success(request, "%s" % message, extra_tags='safe')
+	deactivate_actions.short_description = "Aktionen deaktivieren"
 
 
 	def add_actions_to_invoice(self, request, queryset):
@@ -548,9 +611,8 @@ class ActionInlineForm(ModelForm):
 		model = Action
 		fields = ['name','tax', 'price','duration_extern']
 
-##########################
-###### ActionInline ######
-##########################
+
+# ActionInline model
 
 class ActionInline(admin.TabularInline):
 	model = Action
@@ -561,18 +623,14 @@ class ActionInline(admin.TabularInline):
 	can_delete=False
 	readonly_fields = ['non_editable_date_finished','non_editable_duration','get_remove_invoice_pos_link']
 
-################################
-###### InvoiceStatusAdmin ######
-################################
+
+# InvoiceStatusAdmin model
 			
 class InvoiceStatusAdmin(admin.ModelAdmin):
-
 	list_display = ('name',)   
 
 
-##########################
-###### InvoiceAdmin ######
-##########################
+# InvoiceAdmin model
  
 class InvoiceAdmin(admin.ModelAdmin):
 	fieldsets = (
@@ -632,9 +690,9 @@ class InvoiceAdmin(admin.ModelAdmin):
 			try:
 				instance.date_created = instance.date_created
 			except:
-				instance.date_created = date.today
+				instance.date_created = date.today()
 
-			instance.date_modified = date.today
+			instance.date_modified = date.today()
 
 			try:
 				instance.project = instance.project
@@ -674,6 +732,25 @@ class InvoiceAdmin(admin.ModelAdmin):
 	get_printlink.allow_tags = True
 	get_printlink.short_description = 'Drucken'
 
+
+def make_new_invoice (project):		
+	today = date.today()
+	year = today.strftime("%y")
+	prj = Project.objects.get( id = project )
+		
+	try:	
+		last_invoice = Invoice.objects.filter(invoicenr__contains='R0'+year).order_by('-invoicenr')[0]
+		currentyear = last_invoice.invoicenr[2:4]
+		if int(year) == int(currentyear): 
+			currentnr = last_invoice.invoicenr[4:7] 
+			currentnr = int(currentnr) + 1						
+			newinvoice = Invoice(invoicenr=("R%03d%03d" % (int(year),int(currentnr))),project=prj, customer=prj.customer,customeradd = "",name = prj.name)
+		else:
+			newinvoice = Invoice(invoicenr=("R%03d%03d" % (int(year),1)),project=prj, customer=prj.customer,customeradd = "",name = prj.name)
+	except Exception:	
+		newinvoice = Invoice(invoicenr=("R%03d%03d" % (int(year),1)),project=prj, customer=prj.customer,customeradd = "",name = prj.name)
+	newinvoice.save()
+	return newinvoice.id
 		
 admin.site.register(Customer,CustomerAdmin)
 admin.site.register(ProjectCategory,ProjectCategoryAdmin)

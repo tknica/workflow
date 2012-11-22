@@ -25,7 +25,7 @@ def render_to_pdf(template_src, context_dict,invnr):
     html  = template.render(context)
     result = StringIO.StringIO()
 
-    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("ISO-8859-1")), result)
+    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
     if not pdf.err:
         response = HttpResponse(result.getvalue(), mimetype='application/pdf')
         response['Content-Disposition'] = 'attachment; filename='+invnr+'.pdf'
@@ -71,7 +71,7 @@ def print_invoice(request):
     today = today.strftime("%d.%m.%Y")
     if inv.description:
         escpdescr = inv.description
-        escpdescr.replace('\n', '<br />')
+        #escpdescr.replace('\n', '<br />')
     else:
         escpdescr = ""
     return render_to_pdf(
@@ -90,7 +90,7 @@ def print_invoice(request):
                 'net': net,
                 'tax':tax,
                 'gross' : gross,
-                'description': inv.description
+                'description': escpdescr
                 
             },
             invnr
