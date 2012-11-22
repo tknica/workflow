@@ -345,13 +345,9 @@ class ActionAdmin(admin.ModelAdmin):
 
 		
 		q = Action.objects.filter(**my_filter).aggregate(tot=Sum('duration'))
-		#q = Action.objects.all().aggregate(tot=Sum('duration'))
+
 		if q['tot'] != None:
 			total = timedelta(microseconds=q['tot'])
-			#hours, remainder = divmod(total, 3600)
-			#minutes, seconds = divmod(remainder, 60)
-			#duration_formatted = '%s:%s:%s' % (hours, minutes, seconds)
-			#scds = int(q / 1000000)
 			days = total.days * 24
 			hours =  int(time.strftime("%H",time.gmtime(total.seconds))) + days
 			minutes = time.strftime("%M",time.gmtime(total.seconds))
